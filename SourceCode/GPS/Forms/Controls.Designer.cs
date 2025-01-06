@@ -14,6 +14,7 @@ using AgOpenGPS.Forms;
 using AgOpenGPS.Forms.Pickers;
 using AgOpenGPS.Properties;
 using Microsoft.Win32;
+using OpenTK.Input;
 
 namespace AgOpenGPS
 {
@@ -156,7 +157,7 @@ namespace AgOpenGPS
                         if (sounds.isSteerSoundOn) sounds.sndAutoSteerOff.Play();
                     }
 
-                    SystemEventWriter("Steer Off, Above Max Safe Speed for Autosteer");
+                    Log.EventWriter("Steer Off, Above Max Safe Speed for Autosteer");
 
                     if (isMetric)
                         TimedMessageBox(3000, "AutoSteer Disabled", "Above Maximum Safe Steering Speed: " + vehicle.maxSteerSpeed.ToString("N0") + " Kmh");
@@ -190,8 +191,7 @@ namespace AgOpenGPS
                 }
                 else
                 {
-                    var form = new FormTimedMessage(2000, (gStr.gsNoGuidanceLines), (gStr.gsTurnOnContourOrMakeABLine));
-                    form.Show(this);
+                    TimedMessageBox(2000, (gStr.gsNoGuidanceLines), (gStr.gsTurnOnContourOrMakeABLine));
                 }
             }
         }
@@ -203,7 +203,7 @@ namespace AgOpenGPS
             if (bnd.bndList.Count == 0)
             {
                 TimedMessageBox(2000, gStr.gsNoBoundary, gStr.gsCreateABoundaryFirst);
-                SystemEventWriter("Uturn attempted without boundary");
+                Log.EventWriter("Uturn attempted without boundary");
                 return;
             }
 
@@ -338,7 +338,7 @@ namespace AgOpenGPS
             }
             else
             {
-                var form = new FormTimedMessage(1500, gStr.gsNoABLineActive, gStr.gsPleaseEnterABLine);
+                TimedMessageBox(1500, gStr.gsNoABLineActive, gStr.gsPleaseEnterABLine);
                 return;
             }
             if (flp1.Visible)
@@ -346,7 +346,9 @@ namespace AgOpenGPS
                 flp1.Visible = false;
             }
 
-            panelRight.Visible = false; 
+            panelRight.Visible = false;
+
+            this.Activate();
         }
         private void btnTracksOff_Click(object sender, EventArgs e)
         {
@@ -375,7 +377,7 @@ namespace AgOpenGPS
             }
             else
             {
-                var form = new FormTimedMessage(1500, gStr.gsNoABLineActive, gStr.gsPleaseEnterABLine);
+                TimedMessageBox(1500, gStr.gsNoABLineActive, gStr.gsPleaseEnterABLine);
                 return;
             }
 
@@ -383,6 +385,8 @@ namespace AgOpenGPS
             {
                 flp1.Visible = false;
             }
+
+            this.Activate();
 
         }
         private void btnBuildTracks_Click(object sender, EventArgs e)
@@ -429,6 +433,7 @@ namespace AgOpenGPS
             {
                 flp1.Visible = false;
             }
+            this.Activate();
         }
 
         private void btnABDraw_Click(object sender, EventArgs e)
@@ -485,7 +490,7 @@ namespace AgOpenGPS
                     TimedMessageBox(2500, "No GPS", "No GPS Position Found");
 
                 }
-                SystemEventWriter("No GPS Position, Field Closed");
+                Log.EventWriter("No GPS Position, Field Closed");
                 return;
             }
 
@@ -591,12 +596,11 @@ namespace AgOpenGPS
                         TimedMessageBox(2500, "High Field Start Distance Warning", "Field Start is "
                         + distance.ToString("N1") + " km From current position");
 
-                        SystemEventWriter("High Field Start Distance Warning");
+                        Log.EventWriter("High Field Start Distance Warning");
                     }
 
-                    FileSaveSystemEvents();
-                    sbSystemEvents.Clear();
-                    sbSystemEvents.Append(currentFieldDirectory + " *Opened* " + (DateTime.Now.ToLongDateString()) + '\r');
+                    Log.EventWriter("** Opened **  " + currentFieldDirectory + "   " 
+                        + (DateTime.Now.ToString("f", CultureInfo.CreateSpecificCulture(RegistrySettings.culture))));
                 }
             }
 
@@ -644,10 +648,8 @@ namespace AgOpenGPS
             ExportFieldAs_ISOXMLv3();
             ExportFieldAs_ISOXMLv4();
 
-            SystemEventWriter(currentFieldDirectory + " ** Closed **");
-
-            FileSaveSystemEvents();
-            sbSystemEvents.Clear();
+            Log.EventWriter("** Closed **   " + currentFieldDirectory + "   "
+                + DateTime.Now.ToString("f", CultureInfo.CreateSpecificCulture(RegistrySettings.culture)));
 
             Settings.Default.setF_CurrentDir = currentFieldDirectory;
             Settings.Default.Save();
@@ -666,8 +668,7 @@ namespace AgOpenGPS
 
             if (trk.idx == -1)
             {
-                var form = new FormTimedMessage(1500, gStr.gsNoABLineActive, gStr.gsPleaseEnterABLine);
-                form.Show(this);
+                TimedMessageBox(1500, gStr.gsNoABLineActive, gStr.gsPleaseEnterABLine);
                 panelRight.Enabled = true;
                 return;
             }
@@ -758,7 +759,7 @@ namespace AgOpenGPS
             {
                 btnAutoSteer.PerformClick();
                 TimedMessageBox(2000, gStr.gsGuidanceStopped, "Paths Enabled");
-                SystemEventWriter("Autosteer On While Enable Paths");
+                Log.EventWriter("Autosteer On While Enable Paths");
             }
 
             DisableYouTurnButtons();
@@ -970,6 +971,8 @@ namespace AgOpenGPS
                 f1.Close();
             }
 
+            panelNavigation.Location = new System.Drawing.Point(90, 100);
+
             if (panelNavigation.Visible)
             {
                 panelNavigation.Visible = false;
@@ -988,27 +991,14 @@ namespace AgOpenGPS
         }
         private void btnStartAgIO_Click(object sender, EventArgs e)
         {
-            //byte[] data = { 0x80, 0x81, 0x7f, 0xDD, 6, 4, 0, 98,99,100,101, 0xCC };
-
-            //if (isHardwareMessages)
-            //{
-            //    lblHardwareMessage.Text = System.Text.Encoding.UTF8.GetString(data, 7, data[4] - 2);
-            //    lblHardwareMessage.Visible = true;
-            //    hardwareLineCounter = data[5] * 10;
-            //}
-            //else
-            //{
-            //    lblHardwareMessage.Visible = false;
-            //    hardwareLineCounter = 0;
-            //}
+            Log.EventWriter("AgIO Manually Started");
 
             Process[] processName = Process.GetProcessesByName("AgIO");
             if (processName.Length == 0)
             {
                 //Start application here
-                DirectoryInfo di = new DirectoryInfo(Application.StartupPath);
-                string strPath = di.ToString();
-                strPath += "\\AgIO.exe";
+                string strPath = Path.Combine(Application.StartupPath, "AgIO.exe");
+
                 try
                 {
                     //TimedMessageBox(2000, "Please Wait", "Starting AgIO");
@@ -1022,6 +1012,8 @@ namespace AgOpenGPS
                 catch
                 {
                     TimedMessageBox(2000, "No File Found", "Can't Find AgIO");
+                    Log.EventWriter("AgIO Not Found");
+
                 }
             }
             else
@@ -1049,6 +1041,7 @@ namespace AgOpenGPS
             //form.Top = 0;
             //form.Left = 0;
             form.Show(this);
+            this.Activate();
 
         }
         private void btnConfig_Click(object sender, EventArgs e)
@@ -1163,9 +1156,9 @@ namespace AgOpenGPS
 
             form.Top = this.Top + this.Height / 2 - GPSDataWindowTopOffset;
             if (isPanelBottomHidden)
-                form.Left = this.Left + 2;
+                form.Left = this.Left + 5 ;
             else
-                form.Left = this.Left + GPSDataWindowLeft;
+                form.Left = this.Left + GPSDataWindowLeft + 5;
 
 
             Form ff = Application.OpenForms["FormGPS"];
@@ -1199,9 +1192,9 @@ namespace AgOpenGPS
 
             form.Top = this.Top + this.Height / 2 - GPSDataWindowTopOffset;
             if (isPanelBottomHidden)
-                form.Left = this.Left + 2;
+                form.Left = this.Left + 5;
             else
-                form.Left = this.Left + GPSDataWindowLeft;
+                form.Left = this.Left + GPSDataWindowLeft + 5; 
 
             Form ff = Application.OpenForms["FormGPS"];
             ff.Focus();
@@ -1283,35 +1276,46 @@ namespace AgOpenGPS
             using (var form = new FormEnterFlag(this))
             {
                 form.ShowDialog(this);
+                this.Activate();
             }
         }
         private void setWorkingDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (isJobStarted)
             {
-                var form = new FormTimedMessage(2000, gStr.gsFieldIsOpen, gStr.gsCloseFieldFirst);
-                form.Show(this);
+                TimedMessageBox(2000, gStr.gsFieldIsOpen, gStr.gsCloseFieldFirst);
                 return;
             }
 
             FolderBrowserDialog fbd = new FolderBrowserDialog();
             fbd.ShowNewFolderButton = true;
-            fbd.Description = "Currently: " + Settings.Default.setF_workingDirectory;
+            fbd.Description = "Currently: " + RegistrySettings.workingDirectory;
 
-            if (Settings.Default.setF_workingDirectory == "Default") fbd.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            else fbd.SelectedPath = Settings.Default.setF_workingDirectory;
+            if (RegistrySettings.workingDirectory == "Default") fbd.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            else fbd.SelectedPath = RegistrySettings.workingDirectory;
 
             if (fbd.ShowDialog(this) == DialogResult.OK)
             {
                 if (fbd.SelectedPath != Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments))
                 {
-                    Settings.Default.setF_workingDirectory = fbd.SelectedPath;
+                    RegistrySettings.workingDirectory = fbd.SelectedPath;
+                    RegistrySettings.baseDirectory = Path.Combine(RegistrySettings.workingDirectory, "AgOpenGPS");
+                    RegistrySettings.fieldsDirectory = Path.Combine(RegistrySettings.workingDirectory, "AgOpenGPS", "Fields");
+                    RegistrySettings.CreateDirectories();
+                    RegistrySettings.vehicleFileName = "Default Vehicle";
                 }
                 else
                 {
-                    Settings.Default.setF_workingDirectory = "Default";
+                    RegistrySettings.workingDirectory = "Default";
+                    RegistrySettings.vehicleFileName = "Default Vehicle";
+                    RegistrySettings.CreateDirectories();
                 }
+
+                //reset to default Vehicle and save
+                Settings.Default.Reset();
                 Settings.Default.Save();
+
+                RegistrySettings.Save();
 
                 //restart program
                 MessageBox.Show(gStr.gsProgramWillExitPleaseRestart);
@@ -1377,40 +1381,22 @@ namespace AgOpenGPS
 
                 if (result2 == DialogResult.Yes)
                 {
-                    ////opening the subkey
-                    RegistryKey regKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\AgOpenGPS");
+                    FileSaveSystemEvents();
+                    Log.sbEvents.Clear();
 
-                    if (regKey == null)
-                    {
-                        RegistryKey Key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\AgOpenGPS");
+                    //save event
+                    Log.EventWriter("*****");
+                    Log.EventWriter("Registry set to default - Reset ALL event occured");
+                    Log.EventWriter("*****");
+                    FileSaveSystemEvents();
 
-                        //storing the values
-                        Key.SetValue("Language", "en");
-                        Key.Close();
-                    }
-                    else
-                    {
-                        //adding or editing "Language" subkey to the "SOFTWARE" subkey  
-                        RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\AgOpenGPS");
-
-                        //storing the values  
-                        key.SetValue("Language", "en");
-                        key.Close();
-                    }
+                    RegistrySettings.Reset();
 
                     Settings.Default.Reset();
                     Settings.Default.Save();
 
-                    Settings.Default.setF_culture = "en";
-                    Settings.Default.setF_workingDirectory = "Default";
-                    Settings.Default.Save();
-
-                    //save event
-                    SystemEventWriter("Reset ALL event occured" );
-                    FileSaveSystemEvents();
-
                     MessageBox.Show(gStr.gsProgramWillExitPleaseRestart);
-                    System.Environment.Exit(1);
+                    Close();
                 }
             }
         }
@@ -1479,7 +1465,7 @@ namespace AgOpenGPS
             {
                 form.ShowDialog(this);
             }
-            SettingsIO.ExportAll(vehiclesDirectory + vehicleFileName + ".XML");
+            RegistrySettings.Save();
         }
         private void colorsSectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1489,7 +1475,7 @@ namespace AgOpenGPS
                 {
                     form.ShowDialog(this);
                 }
-                SettingsIO.ExportAll(vehiclesDirectory + vehicleFileName + ".XML");
+                RegistrySettings.Save();
             }
             else
             {
@@ -1580,8 +1566,7 @@ namespace AgOpenGPS
         {
             if (Restart && isJobStarted)
             {
-                var form = new FormTimedMessage(2000, gStr.gsFieldIsOpen, gStr.gsCloseFieldFirst);
-                form.Show(this);
+                TimedMessageBox(2000, gStr.gsFieldIsOpen, gStr.gsCloseFieldFirst);
                 return;
             }
 
@@ -1691,16 +1676,10 @@ namespace AgOpenGPS
                     break;
             }
 
-            Settings.Default.setF_culture = lang;
-            Settings.Default.Save();
+            RegistrySettings.culture = lang;
 
-            //adding or editing "Language" subkey to the "SOFTWARE" subkey  
-            RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\AgOpenGPS");
-
-            //storing the values  
-            key.SetValue("Language", lang);
-            key.Close();
-
+            RegistrySettings.Save();
+            
             if (Restart)
             {
                 MessageBox.Show(gStr.gsProgramWillExitPleaseRestart);
@@ -1994,7 +1973,7 @@ namespace AgOpenGPS
                         FileCreateContour();
                         FileCreateSections();
 
-                        SystemEventWriter("All Section Mapping Deleted");
+                        Log.EventWriter("All Section Mapping Deleted");
                     }
                     else
                     {
@@ -2054,13 +2033,15 @@ namespace AgOpenGPS
         }
         private void eventViewerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form form = new FormEventViewer(this);
+            Form form = new FormEventViewer(Path.Combine(RegistrySettings.logsDirectory, "AgOpenGPS_Events_Log.txt"));
             form.Show(this);
+            this.Activate();
         }
         private void webcamToolStrip_Click(object sender, EventArgs e)
         {
             Form form = new FormWebCam();
             form.Show(this);
+            this.Activate();
         }
         private void offsetFixToolStrip_Click(object sender, EventArgs e)
         {
@@ -2163,9 +2144,8 @@ namespace AgOpenGPS
         }
         private void lblHz_Click(object sender, EventArgs e)
         {
-            DirectoryInfo di = new DirectoryInfo(Application.StartupPath);
-            string strPath = di.ToString();
-            strPath += "\\OGL.exe";
+            string strPath = Path.Combine(Application.StartupPath, "OGL.exe");
+
             try
             {
                 ProcessStartInfo processInfo = new ProcessStartInfo();
@@ -2185,7 +2165,7 @@ namespace AgOpenGPS
         }
 
         //The zoom tilt buttons
-        private void btnZoomIn_MouseDown(object sender, MouseEventArgs e)
+        private void btnZoomIn_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (camera.zoomValue <= 20)
             { if ((camera.zoomValue -= camera.zoomValue * 0.1) < 3.0) camera.zoomValue = 3.0; }
@@ -2194,7 +2174,7 @@ namespace AgOpenGPS
             SetZoom();
             navPanelCounter = 2;
         }
-        private void btnZoomOut_MouseDown(object sender, MouseEventArgs e)
+        private void btnZoomOut_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (camera.zoomValue <= 20) camera.zoomValue += camera.zoomValue * 0.1;
             else camera.zoomValue += camera.zoomValue * 0.05;
@@ -2220,7 +2200,7 @@ namespace AgOpenGPS
                 FileSaveSingleFlagKML(flagNumberPicked);
 
                 //Process.Start(@"C:\Program Files (x86)\Google\Google Earth\client\googleearth", workingDirectory + currentFieldDirectory + "\\Flags.KML");
-                Process.Start(fieldsDirectory + currentFieldDirectory + "\\Flag.KML");
+                Process.Start(Path.Combine(RegistrySettings.fieldsDirectory, currentFieldDirectory, "Flag.KML"));
             }
         }
 
@@ -2233,7 +2213,7 @@ namespace AgOpenGPS
 
         #region Sim controls
 
-        private void btnSimSpeedUp_MouseDown(object sender, MouseEventArgs e)
+        private void btnSimSpeedUp_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (sim.stepDistance < 0)
             {
@@ -2246,7 +2226,7 @@ namespace AgOpenGPS
 
             if (sim.stepDistance > 7.5) sim.stepDistance = 7.5;
         }
-        private void btnSpeedDn_MouseDown(object sender, MouseEventArgs e)
+        private void btnSpeedDn_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (sim.stepDistance < 0.2 && sim.stepDistance > -0.51) sim.stepDistance -= 0.02;
             else sim.stepDistance *= 0.8;
@@ -2264,7 +2244,7 @@ namespace AgOpenGPS
                 }
                 else
                 {
-                    lastSimGuidanceAngle = (double)guidanceLineSteerAngle * 0.01 * 0.75;
+                    lastSimGuidanceAngle = (double)guidanceLineSteerAngle * 0.01 * 0.9;
                     sim.DoSimTick(lastSimGuidanceAngle);
                 }
             }
@@ -2279,7 +2259,7 @@ namespace AgOpenGPS
             {
                 btnAutoSteer.PerformClick();
                 TimedMessageBox(2000, gStr.gsGuidanceStopped, "Sim Reverse Touched");
-                SystemEventWriter("Steer Off, Sim Reverse Activated");
+                Log.EventWriter("Steer Off, Sim Reverse Activated");
             }
         }
         private void hsbarSteerAngle_Scroll(object sender, ScrollEventArgs e)

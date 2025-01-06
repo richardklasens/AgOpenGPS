@@ -313,30 +313,6 @@ namespace AgOpenGPS.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("en")]
-        public string setF_culture {
-            get {
-                return ((string)(this["setF_culture"]));
-            }
-            set {
-                this["setF_culture"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Default")]
-        public string setF_workingDirectory {
-            get {
-                return ((string)(this["setF_workingDirectory"]));
-            }
-            set {
-                this["setF_workingDirectory"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("5")]
         public int setDisplay_lightbarCmPerPixel {
             get {
@@ -433,7 +409,7 @@ namespace AgOpenGPS.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
         public int setDisplay_lineWidth {
             get {
                 return ((int)(this["setDisplay_lineWidth"]));
@@ -950,7 +926,7 @@ namespace AgOpenGPS.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2.5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.5")]
         public double setAS_guidanceLookAheadTime {
             get {
                 return ((double)(this["setAS_guidanceLookAheadTime"]));
@@ -1754,7 +1730,7 @@ namespace AgOpenGPS.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2.8")]
+        [global::System.Configuration.DefaultSettingValueAttribute("3.3")]
         public double setVehicle_wheelbase {
             get {
                 return ((double)(this["setVehicle_wheelbase"]));
@@ -1809,18 +1785,6 @@ namespace AgOpenGPS.Properties {
             }
             set {
                 this["setVehicle_isSteerAxleAhead"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Default Vehicle")]
-        public string setVehicle_vehicleName {
-            get {
-                return ((string)(this["setVehicle_vehicleName"]));
-            }
-            set {
-                this["setVehicle_vehicleName"] = value;
             }
         }
         
@@ -1970,7 +1934,7 @@ namespace AgOpenGPS.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.5")]
         public double setVehicle_goalPointLookAheadMult {
             get {
                 return ((double)(this["setVehicle_goalPointLookAheadMult"]));
@@ -3117,6 +3081,54 @@ namespace AgOpenGPS.Properties {
             }
             set {
                 this["setTram_alpha"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.9")]
+        public double setVehicle_goalPointAcquireFactor {
+            get {
+                return ((double)(this["setVehicle_goalPointAcquireFactor"]));
+            }
+            set {
+                this["setVehicle_goalPointAcquireFactor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool setBnd_isDrawPivot {
+            get {
+                return ((bool)(this["setBnd_isDrawPivot"]));
+            }
+            set {
+                this["setBnd_isDrawPivot"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool setDisplay_isSectionLinesOn {
+            get {
+                return ((bool)(this["setDisplay_isSectionLinesOn"]));
+            }
+            set {
+                this["setDisplay_isSectionLinesOn"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool setDisplay_isLineSmooth {
+            get {
+                return ((bool)(this["setDisplay_isLineSmooth"]));
+            }
+            set {
+                this["setDisplay_isLineSmooth"] = value;
             }
         }
     }
